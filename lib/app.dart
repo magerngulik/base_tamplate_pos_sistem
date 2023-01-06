@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:testing_local_storage/bloc/auth/auth_bloc.dart';
 import 'package:testing_local_storage/bloc/product/product_bloc.dart';
 import 'package:testing_local_storage/bloc/random_number/random_number_bloc.dart';
 import 'package:testing_local_storage/bloc/visible/visible_cubit.dart';
-import 'package:testing_local_storage/presentation/navigator/view/navigator.dart';
+import 'package:testing_local_storage/presentation/auth/auth_user.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Widget mainview = const NavigatorPage();
+    Widget mainview = const AuthUserFirebase();
     return ScreenUtilInit(
         designSize: const Size(360, 690),
         minTextAdapt: true,
@@ -27,6 +30,9 @@ class App extends StatelessWidget {
               ),
               BlocProvider(
                 create: (context) => VisibleCubit(),
+              ),
+              BlocProvider(
+                create: (context) => AuthBloc(),
               )
             ],
             child: MaterialApp(
@@ -45,7 +51,7 @@ class App extends StatelessWidget {
                           color: Colors.black,
                         ),
                         iconTheme: const IconThemeData(color: Colors.black))),
-                home: const NavigatorPage()),
+                home: mainview),
           );
         });
   }
