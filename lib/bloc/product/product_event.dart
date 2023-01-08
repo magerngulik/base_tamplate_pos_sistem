@@ -54,3 +54,10 @@ class DelectSelectEvent extends ProductEvent {}
 class SelectAllEvent extends ProductEvent {}
 
 class DeleteCheckoutEvent extends ProductEvent {}
+
+class CheckoutEvent extends ProductEvent {
+  Checkout item;
+  CheckoutEvent({
+    required this.item,
+  });
+}

@@ -1,8 +1,17 @@
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 // ignore_for_file: camel_case_types, prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:testing_local_storage/data/model/checkout_model.dart';
+import 'package:testing_local_storage/data/model/user_model.dart';
+import 'package:testing_local_storage/data/provider/user_service.dart';
+import 'package:testing_local_storage/presentation/member/profile_user/view/profile_user.dart';
 import 'package:testing_local_storage/util/color/color_util.dart';
+import 'package:testing_local_storage/util/shared/widget/show_qrcode_scanner/show_qrcode_scanner.dart';
 
 class HomeUser extends StatefulWidget {
   const HomeUser({Key? key}) : super(key: key);
@@ -41,44 +50,56 @@ class _HomeUserState extends State<HomeUser> {
             const SizedBox(
               height: 20.0,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundColor: darkCoffee,
-                  radius: 31,
-                  child: const CircleAvatar(
-                    radius: 28.0,
-                    backgroundImage: NetworkImage(
-                      "https://i.ibb.co/PGv8ZzG/me.jpg",
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 20.0,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            StreamBuilder<DocumentSnapshot<Object?>>(
+              stream: userCollection.snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) return const Text("Error");
+                if (!snapshot.hasData) return const Text("No Data");
+                Map<String, dynamic> item =
+                    (snapshot.data!.data() as Map<String, dynamic>);
+                item["id"] = snapshot.data!.id;
+                var userItem = UserModel.fromMap(item);
+                return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "M.Zulkarnaen",
-                      style: GoogleFonts.montserrat(
-                        textStyle: Theme.of(context).textTheme.headline4,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    CircleAvatar(
+                      backgroundColor: darkCoffee,
+                      radius: 31,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 28.0,
+                        backgroundImage: NetworkImage(
+                          "${userItem.photo}",
+                        ),
                       ),
                     ),
-                    Text(
-                      "Zulkarnaim70@gmail.com",
-                      style: GoogleFonts.montserrat(
-                        textStyle: Theme.of(context).textTheme.headline4,
-                        fontSize: 12,
-                      ),
+                    const SizedBox(
+                      width: 20.0,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${userItem.name}",
+                          style: GoogleFonts.montserrat(
+                            textStyle: Theme.of(context).textTheme.headline4,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "${userItem.email}",
+                          style: GoogleFonts.montserrat(
+                            textStyle: Theme.of(context).textTheme.headline4,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                );
+              },
             ),
             const SizedBox(
               height: 20.0,
@@ -130,16 +151,33 @@ class _HomeUserState extends State<HomeUser> {
                                 ),
                                 child: Column(
                                   children: [
-                                    Text(
-                                      "23000",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: Theme.of(context)
-                                            .textTheme
-                                            .headline4,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
+                                    StreamBuilder<DocumentSnapshot<Object?>>(
+                                      stream: userCollection.snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasError) {
+                                          return const Text("Error");
+                                        }
+                                        if (!snapshot.hasData) {
+                                          return const Text("No Data");
+                                        }
+                                        Map<String, dynamic> item =
+                                            (snapshot.data!.data()
+                                                as Map<String, dynamic>);
+                                        item["id"] = snapshot.data!.id;
+                                        UserModel useritem =
+                                            UserModel.fromMap(item);
+                                        return Text(
+                                          "${useritem.point}",
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .headline4,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
                                     ),
                                     Text(
                                       "Total Point",
@@ -168,16 +206,37 @@ class _HomeUserState extends State<HomeUser> {
                                 ),
                                 child: Column(
                                   children: [
-                                    Text(
-                                      "15",
-                                      style: GoogleFonts.montserrat(
-                                        textStyle: Theme.of(context)
-                                            .textTheme
-                                            .headline4,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
+                                    StreamBuilder<QuerySnapshot>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection("transaction")
+                                          .where("id_costumer",
+                                              isEqualTo: FirebaseAuth
+                                                  .instance.currentUser!.uid)
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasError) {
+                                          return const Text("Error");
+                                        }
+                                        if (snapshot.data == null) {
+                                          return Container();
+                                        }
+                                        if (snapshot.data!.docs.isEmpty) {
+                                          return const Text("No Data");
+                                        }
+                                        final data = snapshot.data!;
+
+                                        return Text(
+                                          "${data.docs.length}",
+                                          style: GoogleFonts.montserrat(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .headline4,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
                                     ),
                                     Text(
                                       "Jumlah Transaksi",
@@ -294,7 +353,7 @@ class _HomeUserState extends State<HomeUser> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  Container()),
+                                                  const ProfileUser()),
                                         );
                                       },
                                       child: Container(
@@ -461,25 +520,47 @@ class _HomeUserState extends State<HomeUser> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          height: 100.0,
-                          width: 100.0,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(
-                                16.0,
+                        InkWell(
+                          onTap: () async {
+                            String qrCode;
+                            qrCode = await showQrcodeScanner(context);
+                            // print("Code data: $qrCode");
+                            var data = Checkout.fromJson(jsonDecode(qrCode));
+                            // print("data hasil $data");
+                            await FirebaseFirestore.instance
+                                .collection("transaction")
+                                .add({
+                              "detail": data.toJson(),
+                              "id_costumer":
+                                  FirebaseAuth.instance.currentUser!.uid,
+                              "name_costumer": FirebaseAuth
+                                  .instance.currentUser!.displayName,
+                              "create_at": DateTime.now()
+                            });
+                            int newPoint = data.point!;
+                            // double inputPoint = newPoint.toDouble();
+                            UserService.updatePoint(point: newPoint);
+                          },
+                          child: Container(
+                            height: 100.0,
+                            width: 100.0,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(
+                                  16.0,
+                                ),
                               ),
-                            ),
-                            image: const DecorationImage(
-                              image: AssetImage(
-                                "assets/image/qr-code.png",
+                              image: const DecorationImage(
+                                image: AssetImage(
+                                  "assets/image/qr-code.png",
+                                ),
+                                fit: BoxFit.fitWidth,
                               ),
-                              fit: BoxFit.fitWidth,
-                            ),
-                            border: Border.all(
-                              width: 2.0,
-                              color: darkCoffee,
+                              border: Border.all(
+                                width: 2.0,
+                                color: darkCoffee,
+                              ),
                             ),
                           ),
                         ),

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:testing_local_storage/data/model/user_model.dart';
 
 DocumentReference get userCollection {
   return FirebaseFirestore.instance
@@ -22,7 +23,7 @@ class UserService {
   }
 
   static updatePoint({
-    required double point,
+    required int point,
   }) async {
     await userCollection.update({
       "point": FieldValue.increment(point),
@@ -35,5 +36,15 @@ class UserService {
       "email": FirebaseAuth.instance.currentUser!.email,
       "name": FirebaseAuth.instance.currentUser!.displayName,
     };
+  }
+
+  static updateProfile(UserModel user) async {
+    userCollection.set({
+      "id": user.id,
+      "photo": user.photo,
+      "email": user.email,
+      "name": user.name,
+      "point": user.point,
+    });
   }
 }

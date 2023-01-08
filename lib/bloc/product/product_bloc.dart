@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:testing_local_storage/data/model/card_model.dart';
+import 'package:testing_local_storage/data/model/checkout_model.dart';
 import 'package:testing_local_storage/data/model/product.dart';
 
 part 'product_event.dart';
@@ -18,6 +19,7 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
     on<AddQtyEvent>(_onAddQty);
     on<RemoveQtyEvent>(_onRemoveQty);
     on<DeleteCheckoutEvent>(_onDeleteCheckout);
+    on<CheckoutEvent>(_onCheckout);
   }
 
   FutureOr<void> _onAdd(AddProductEvent event, Emitter<ProductState> emit) {
@@ -115,6 +117,19 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
   FutureOr<void> _onDeleteCheckout(
       DeleteCheckoutEvent event, Emitter<ProductState> emit) {
     final state = this.state;
+    emit(ProductState(
+        listCart: List.from(state.listCart)..clear(),
+        listData: state.listData,
+        listSelected: state.listSelected));
+  }
+
+  FutureOr<void> _onCheckout(CheckoutEvent event, Emitter<ProductState> emit) {
+    final state = this.state;
+    emit(Loading());
+    emit(LoadedCheckout(
+      item: event.item,
+    ));
+    emit(Finish());
     emit(ProductState(
         listCart: List.from(state.listCart)..clear(),
         listData: state.listData,

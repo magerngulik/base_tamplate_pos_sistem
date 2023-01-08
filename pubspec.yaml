@@ -50,8 +50,10 @@ dependencies:
   json_annotation: null
   lottie: ^2.1.0
   material_design_icons_flutter: ^6.0.7096
+  mobile_scanner: ^2.1.0
   path: null
   path_provider: null
+  qr_flutter: ^4.0.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0

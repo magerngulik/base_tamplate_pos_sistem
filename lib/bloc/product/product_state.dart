@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of 'product_bloc.dart';
 
 // ignore: must_be_immutable
@@ -41,3 +42,14 @@ class ProductState extends Equatable {
     );
   }
 }
+
+class Loading extends ProductState {}
+
+class LoadedCheckout extends ProductState {
+  Checkout item;
+  LoadedCheckout({
+    required this.item,
+  });
+}
+
+class Finish extends ProductState {}

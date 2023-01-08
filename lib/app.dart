@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:testing_local_storage/bloc/auth/auth_bloc.dart';
 import 'package:testing_local_storage/bloc/product/product_bloc.dart';
 import 'package:testing_local_storage/bloc/random_number/random_number_bloc.dart';
+import 'package:testing_local_storage/bloc/user/user_bloc.dart';
 import 'package:testing_local_storage/bloc/visible/visible_cubit.dart';
 import 'package:testing_local_storage/presentation/auth/auth_user.dart';
 
@@ -33,6 +34,9 @@ class App extends StatelessWidget {
               ),
               BlocProvider(
                 create: (context) => AuthBloc(),
+              ),
+              BlocProvider(
+                create: (context) => UserBloc(),
               )
             ],
             child: MaterialApp(
